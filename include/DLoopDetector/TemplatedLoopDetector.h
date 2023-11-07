@@ -48,23 +48,24 @@ enum GeometricalCheck
 };
 
 /// Reasons for dismissing loops
+// hayden: status返回接收的值
 enum DetectionStatus
 {
-  /// Loop correctly detected
+  /// Loop correctly detected 检测到回环
   LOOP_DETECTED,
-  /// All the matches are very recent
+  /// All the matches are very recent 帧与帧之间太近，并且没有足够的累计（刚开始阶段）
   CLOSE_MATCHES_ONLY,
-  /// No matches against the database
+  /// No matches against the database 这帧在与之前保存的词袋模型数据库中匹配不到任何信息
   NO_DB_RESULTS,
-  /// Score of current image against previous one too low
+  /// Score of current image against previous one too low 归一化分数 分母 太小了，如果不舍弃，会导致归一化分数过大
   LOW_NSS_FACTOR,
-  /// Scores (or NS Scores) were below the alpha threshold
+  /// Scores (or NS Scores) were below the alpha threshold  归一化评分过低，需要舍弃，remove后重组
   LOW_SCORES,
-  /// Not enough matches to create groups  
+  /// Not enough matches to create groups  论文中提到的island分组接受时间一致性检查
   NO_GROUPS,
-  /// Not enough temporary consistent matches (k)
+  /// Not enough temporary consistent matches (k) 时间一致性不合格
   NO_TEMPORAL_CONSISTENCY,
-  /// The geometrical consistency failed
+  /// The geometrical consistency failed 空间一致性不合格
   NO_GEOMETRICAL_CONSISTENCY
 };
 
@@ -699,12 +700,14 @@ bool TemplatedLoopDetector<TDescriptor, F>::detectLoop(
   const std::vector<TDescriptor> &descriptors,
   DetectionResult &match)
 {
-  EntryId entry_id = m_database->size();
+  EntryId entry_id = m_database->size(); // 数据库已经存入数据的数量为最后传入的帧的编号
   match.query = entry_id;
-  
-  BowVector bowvec;
-  FeatureVector featvec;
-  
+
+  BowVector bowvec; // 当前帧的词袋模型向量
+  FeatureVector featvec; // 特征向量
+
+  // 下面代码是设置空间一致性检查的参数
+  // 如果接受空间一致性检查，需要或者帧的位姿来比对
   if(m_params.geom_check == GEOM_DI)
     m_database->getVocabulary()->transform(descriptors, bowvec, featvec,
       m_params.di_levels);

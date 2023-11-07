@@ -71,6 +71,7 @@ int main(int argc, char* argv[])
     show = false;
 
   // prepares the demo
+  // hayden 主函数声明模板类实例化了对象demo，需要传入的参数有字典，图像，位姿，分辨率
   demoDetector<BriefVocabulary, BriefLoopDetector, FBrief::TDescriptor>
     demo(VOC_FILE, IMAGE_DIR, POSE_FILE, IMAGE_W, IMAGE_H, show);
   

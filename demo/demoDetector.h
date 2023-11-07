@@ -73,6 +73,7 @@ public:
    * @param name demo name
    * @param extractor functor to extract features
    */
+  // hayden 第二个参数需要传入描述子匹配对象
   void run(const std::string &name, 
     const FeatureExtractor<TDescriptor> &extractor);
 
@@ -221,6 +222,7 @@ void demoDetector<TVocabulary, TDetector, TDescriptor>::run
     DetectionResult result;
     
     profiler.profile("detection");
+    // hayden :将提取的特征点和描述子传到：
     detector.detectLoop(keys, descriptors, result);
     profiler.stop();
     
